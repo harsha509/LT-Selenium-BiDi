@@ -4,6 +4,7 @@
         <class name="Logs"/>
         <class name="JSExceptions"/>
         <class name="NetworkAuth"/>
+        <class name="ExecuteScript"/>
     </classes>
     </test>
 </suite>
