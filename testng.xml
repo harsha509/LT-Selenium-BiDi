@@ -1,0 +1,8 @@
+<suite name="SampleBidiTest Tests">
+    <test name="SampleBidiTest">
+    <classes>
+        <class name="Logs"/>
+        <class name="JSExceptions"/>
+    </classes>
+    </test>
+</suite>
