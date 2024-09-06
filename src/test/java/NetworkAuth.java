@@ -1,7 +1,7 @@
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.bidi.module.LogInspector;
+import org.openqa.selenium.*;
+import org.openqa.selenium.bidi.module.Network;
+import org.openqa.selenium.bidi.network.AddInterceptParameters;
+import org.openqa.selenium.bidi.network.InterceptPhase;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -10,12 +10,16 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.hamcrest.Matchers.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
-public class Logs {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+
+public class NetworkAuth {
 
     protected WebDriver driver;
     protected WebDriverWait wait;
@@ -30,9 +34,9 @@ public class Logs {
         options.setBrowserVersion("127");
         HashMap<String, Object> ltOptions = new HashMap<String, Object>();
         ltOptions.put("username", LT_USERNAME);
-        ltOptions.put("accessKey", LT_KEY);
+        ltOptions.put("accessKey",LT_KEY );
         ltOptions.put("build", "BiDi - Log Events");
-        ltOptions.put("name", "ListenToConsoleEvents");
+        ltOptions.put("name", "NetworkAuth");
         ltOptions.put("project", "BiDi");
         ltOptions.put("w3c", true);
         ltOptions.put("plugin", "java-testNG");
@@ -43,16 +47,18 @@ public class Logs {
     }
 
     @Test
-    public void listenToConsoleEvents() {
-        try (LogInspector logInspector = new LogInspector(driver)) {
-            logInspector.onConsoleEntry(consoleLogEntry -> {
-                System.out.println("text: " + consoleLogEntry.getText());
-                System.out.println("level: " + consoleLogEntry.getLevel());
-            });
-
-            String page = "https://www.selenium.dev/selenium/web/bidi/logEntryAdded.html";
-            driver.get(page);
-            driver.findElement(By.id("consoleLog")).click();
+    void canContinueWithAuthCredentials() {
+        try (Network network = new Network(driver)) {
+            network.addIntercept(new AddInterceptParameters(InterceptPhase.AUTH_REQUIRED));
+            network.onAuthRequired(
+                    responseDetails ->
+                            network.continueWithAuth(
+                                    responseDetails.getRequest().getRequestId(),
+                                    new UsernameAndPassword("admin", "admin")));
+            driver.get("https://the-internet.herokuapp.com/basic_auth");
+            String successMessage = "Congratulations! You must have the proper credentials.";
+            WebElement elementMessage = driver.findElement(By.tagName("p"));
+            assertThat(elementMessage.getText(), equalTo(successMessage));
         }
     }
 

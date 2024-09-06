@@ -3,6 +3,7 @@
     <classes>
         <class name="Logs"/>
         <class name="JSExceptions"/>
+        <class name="NetworkAuth"/>
     </classes>
     </test>
 </suite>
