@@ -1,5 +1,5 @@
-<suite name="SampleBidiTest Tests">
-    <test name="SampleBidiTest">
+<suite name="SampleBidiTest Tests" parallel="false">
+    <test name="SampleBiDiTest" parallel="false">
     <classes>
         <class name="Logs"/>
         <class name="JSExceptions"/>
